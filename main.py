@@ -1,15 +1,24 @@
 from SeleniumBrowser import SeleniumBrowser
-import threading
 
 progression = 0
 total_count = 1
+url_file_path = "urls.txt"
 
 
-def progression_log():
+def post_download():
     global progression
     global total_count
+    global url_file_path
+
     progression += 1
     print(f"Progression: {round(progression / total_count * 100, 2)}%")
+
+    # Remove downloaded url
+    with open(url_file_path, 'r') as file:
+        lines = file.readlines()
+
+    with open(url_file_path, 'w') as file:
+        file.writelines(lines[1:])
 
 
 def download_video(music_url):
@@ -27,11 +36,10 @@ def download_video(music_url):
     start_download_btn = browser.get_element_by_xpath(xpath)
     browser.click_button(start_download_btn)
 
-    progression_log()
     browser.close()
 
 
-def read_url(file_path="urls.txt"):
+def read_url(file_path):
     with open(file_path, 'r') as file:
         file_contents = file.read()
         urls = file_contents.split('\n')
@@ -39,18 +47,14 @@ def read_url(file_path="urls.txt"):
 
 
 def main():
-    urls = read_url()
+    global url_file_path
+    urls = read_url(url_file_path)
     global total_count
     total_count = len(urls)
 
-    threads = []
     for url in urls:
-        thread = threading.Thread(target=download_video(url))
-        thread.start()
-        threads.append(thread)
-
-    for thread in threads:
-        thread.join()
+        download_video(url)
+        post_download()
 
     print("Download complete")
 
