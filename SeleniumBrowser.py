@@ -16,7 +16,7 @@ class SeleniumBrowser:
         self.driver.get(url)
 
     def get_element_by_id(self, id, timeout=10):
-        wait = WebDriverWait(self.driver, 10)
+        wait = WebDriverWait(self.driver, timeout)
         try:
             element = wait.until(ec.visibility_of_element_located((By.ID, id)))
             return element
@@ -25,7 +25,7 @@ class SeleniumBrowser:
             return None
 
     def get_element_by_xpath(self, xpath, timeout=10):
-        wait = WebDriverWait(self.driver, 10)
+        wait = WebDriverWait(self.driver, timeout)
         try:
             element = wait.until(ec.presence_of_element_located((By.XPATH, xpath)))
             return element

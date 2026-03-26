@@ -4,6 +4,7 @@ progression = 0
 total_count = 1
 url_file_path = "urls.txt"
 debug = True
+headless = True
 
 log = lambda x : print(x) if debug else None
 
@@ -30,28 +31,33 @@ def error_recovery(url):
 
 
 def download_video(music_url):
-    converter_url = "https://ytmp3.nu"
-    browser = SeleniumBrowser(converter_url, headless=False)
+    global headless
+    converter_url = "https://ytmp3.cc/Nnht/"
+    browser = SeleniumBrowser(converter_url, headless=headless)
     error = False
     try:
+        log("********************************************")
         log("Browser init finish, going to website ...")
-        input_url_field = browser.get_element_by_id("video")
+        input_url_field = browser.get_element_by_id("v")
         browser.fill_input(input_url_field, music_url)
 
-        xpath = "/html/body/div[2]/form/div/div[3]/div[2]/input"
-        start_convert_btn = browser.get_element_by_xpath(xpath, timeout=1000)
+        xpath = "/html/body/div[2]/form/div[3]/div[2]/button"
+        start_convert_btn = browser.get_element_by_xpath(xpath, timeout=30)
         browser.click_button(start_convert_btn)
         log("Waiting for convertion ...")
 
-        xpath = "/html/body/div[2]/form/div/div[3]/a[1]"
-        start_download_btn = browser.get_element_by_xpath(xpath, timeout=10000)
+        xpath = "/html/body/div[2]/form/div[3]/button[1]"
+        start_download_btn = browser.get_element_by_xpath(xpath, timeout=60)
         browser.click_button(start_download_btn)
         log("Waiting to download ...")
     except Exception as e:
         error = True
         print(e)
+        error_recovery(music_url)  
     finally:
         browser.close()
+        post_download()
+        log("********************************************\n")
     return error
 
 
@@ -69,10 +75,8 @@ def main():
     total_count = len(urls)
 
     for url in urls:
-        error = download_video(url)
-        if error:
-            error_recovery(url)  
-        post_download()
+        download_video(url)
+        
 
 
     print("Download complete")
